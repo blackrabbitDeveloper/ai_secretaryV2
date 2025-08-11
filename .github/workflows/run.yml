@@ -37,4 +37,4 @@ jobs:
           CITY_NAME: ${{ secrets.CITY_NAME }}
         run: |
           # papermill을 사용하여 노트북을 실행하고, 결과는 output.ipynb에 저장
-          papermill daily_briefing.ipynb output.ipynb
+          papermill --log-output daily_briefing.ipynb output.ipynb
