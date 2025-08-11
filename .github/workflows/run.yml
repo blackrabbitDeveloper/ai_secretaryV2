@@ -23,7 +23,11 @@ jobs:
 
       - name: Install dependencies from requirements.txt
         run: pip install -r requirements.txt
-
+      
+      
+      - name: Check file structure #
+        run: ls -R
+        
       - name: Run the daily briefing notebook
         env:
           # GitHub 저장소의 Secrets에 저장된 값들을 스크립트의 환경변수로 전달
