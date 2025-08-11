@@ -1,0 +1,36 @@
+# .github/workflows/run.yml
+
+name: Daily Briefing Bot
+
+on:
+  schedule:
+    # 한국 시간(KST)으로 매일 오전 8시에 실행 (UTC 기준 전날 23시)
+    - cron: '0 23 * * *'
+  # GitHub Actions 탭에서 수동으로 실행할 수 있는 버튼 추가
+  workflow_dispatch:
+
+jobs:
+  run-notebook:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies from requirements.txt
+        run: pip install -r requirements.txt
+
+      - name: Run the daily briefing notebook
+        env:
+          # GitHub 저장소의 Secrets에 저장된 값들을 스크립트의 환경변수로 전달
+          OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          CITY_NAME: ${{ secrets.CITY_NAME }}
+        run: |
+          # papermill을 사용하여 노트북을 실행하고, 결과는 output.ipynb에 저장
+          papermill daily_briefing.ipynb output.ipynb
