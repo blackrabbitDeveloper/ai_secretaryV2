@@ -12,6 +12,8 @@ on:
 jobs:
   run-notebook:
     runs-on: ubuntu-latest
+    timeout-minutes: 10  # 무한 대기 방지
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -20,21 +22,24 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.10'
+          cache: 'pip'  # pip 캐시로 설치 속도 개선
 
-      - name: Install dependencies from requirements.txt
+      - name: Install dependencies
         run: pip install -r requirements.txt
-      
-      
-      - name: Check file structure #
-        run: ls -R
-        
+
       - name: Run the daily briefing notebook
         env:
-          # GitHub 저장소의 Secrets에 저장된 값들을 스크립트의 환경변수로 전달
           OPENWEATHER_API_KEY: ${{ secrets.OPENWEATHER_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
           CITY_NAME: ${{ secrets.CITY_NAME }}
         run: |
-          # papermill을 사용하여 노트북을 실행하고, 결과는 output.ipynb에 저장
           papermill --log-output daily_briefing.ipynb output.ipynb
+
+      - name: Upload output notebook (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: failed-notebook-output
+          path: output.ipynb
+          retention-days: 7

@@ -1,8 +1,8 @@
 # requirements.txt
 
-requests
-feedparser
-pytz
-google-generativeai
+requests==2.31.0
+feedparser==6.0.11
+pytz==2025.2
+google-generativeai>=0.8.0
 jupyter
 papermill
