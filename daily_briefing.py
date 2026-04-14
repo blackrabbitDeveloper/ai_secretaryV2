@@ -198,6 +198,7 @@ MARKET_INDICES = {
     "^GSPC": "S&P 500",
     "^IXIC": "NASDAQ",
     "^N225": "Nikkei 225",
+    "^VIX": "VIX (공포지수)",
 }
 
 
@@ -287,12 +288,18 @@ def build_exchange_embed(rates):
     }
 
 
-# 5) 공포·탐욕 지수 함수
+# 5) 공포·탐욕 지수 함수 (CNN Fear & Greed Index - 주식시장 기반)
 def fetch_fear_greed_index():
-    r = requests.get("https://api.alternative.me/fng/?limit=1", timeout=10)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+    }
+    r = requests.get(
+        "https://production.dataviz.cnn.io/index/fearandgreed/current",
+        headers=headers, timeout=10,
+    )
     r.raise_for_status()
-    data = r.json()["data"][0]
-    return {"score": int(data["value"]), "label": data["value_classification"]}
+    data = r.json()
+    return {"score": round(data["score"]), "label": data["rating"]}
 
 
 def build_fear_greed_embed(fg):
@@ -329,7 +336,7 @@ def build_fear_greed_embed(fg):
         "title": f"😱 공포·탐욕 지수 ({datetime.now(TZ).strftime('%Y-%m-%d')})",
         "description": description,
         "color": color,
-        "footer": {"text": "Powered by Alternative.me Fear & Greed Index"},
+        "footer": {"text": "Powered by CNN Fear & Greed Index"},
     }
 
 
